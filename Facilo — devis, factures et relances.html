@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Facilo — devis, factures et relances en 2 minutes</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f4f1;--fg:#15201a;--mut:#66726b;--card:#fff;--line:#d8ded9;--acc:#0e6b4e;--on:#fff;--warn:#c2410c;--ok:#0e6b4e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101613;--fg:#eaf1ec;--mut:#8c9a92;--card:#18201c;--line:#2a352f;--acc:#4fc79c;--on:#08130e;--warn:#fb923c;--ok:#4fc79c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101613;--fg:#eaf1ec;--mut:#8c9a92;--card:#18201c;--line:#2a352f;--acc:#4fc79c;--on:#08130e;--warn:#fb923c;--ok:#4fc79c;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+main{max-width:1080px;margin:0 auto;padding:18px 16px 48px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.logo{font-weight:800;font-size:26px;letter-spacing:-.04em}
+.tabs{display:flex;gap:4px;background:var(--card);padding:4px;border-radius:12px;border:1px solid var(--line)}
+.tabs button{background:none;color:var(--mut);padding:8px 16px}
+.tabs button.on{background:var(--acc);color:var(--on)}
+button{font:inherit;font-weight:600;cursor:pointer;border:0;border-radius:10px;padding:10px 16px;background:var(--acc);color:var(--on)}
+button.line{background:transparent;color:var(--fg);border:1.5px solid var(--line)}
+button.sm{padding:6px 10px;font-size:13px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.card+.card{margin-top:14px}
+h2{font-size:16px;margin:0 0 12px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+input,select,textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ln{display:grid;grid-template-columns:1fr 64px 90px 32px;gap:6px;margin-bottom:6px}
+.ln button{padding:0;background:transparent;color:var(--mut)}
+.hide{display:none}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.stats b{display:block;font-size:22px;letter-spacing:-.02em}
+.stats span{font-size:13px;color:var(--mut)}
+.item{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}
+.item .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.item select{width:auto;padding:6px 8px;font-size:13px}
+.late{color:var(--warn);font-weight:600;font-size:13px}
+.empty{color:var(--mut);text-align:center;padding:24px 0}
+/* aperçu document : toujours clair, comme du papier */
+#prev{background:#fff;color:#111;border-radius:6px;padding:28px;font-size:13px;box-shadow:0 1px 0 var(--line),0 8px 30px rgba(0,0,0,.08);overflow-x:auto}
+#prev .dh{display:flex;justify-content:space-between;gap:16px;margin-bottom:22px}
+#prev .dt{text-align:right;font-weight:800;font-size:20px;letter-spacing:-.02em}
+#prev .dt small{display:block;font-weight:400;font-size:12px;color:#555}
+#prev table{width:100%;border-collapse:collapse;margin:16px 0}
+#prev th{text-align:left;border-bottom:2px solid #111;padding:6px 4px;font-size:12px}
+#prev td{padding:7px 4px;border-bottom:1px solid #ddd;vertical-align:top}
+#prev .r{text-align:right;white-space:nowrap}
+#prev .tot{margin-left:auto;width:230px}
+#prev .tot div{display:flex;justify-content:space-between;padding:3px 0}
+#prev .tot .g{font-weight:800;font-size:16px;border-top:2px solid #111;margin-top:4px;padding-top:6px}
+#prev .mn{margin-top:20px;font-size:11px;color:#555}
+@media print{body *{visibility:hidden}#prev,#prev *{visibility:visible}#prev{position:absolute;left:0;top:0;width:100%;box-shadow:none}}
+</style>
+</head>
+<body>
+<main>
+<header>
+ <div class="logo">Facilo</div>
+ <div class="tabs" role="tablist"><button class="on" id="t1" onclick="tab(1)">Nouveau document</button><button id="t2" onclick="tab(2)">Mes documents</button></div>
+</header>
+
+<section id="s1">
+ <div class="grid">
+  <div>
+   <div class="card">
+    <h2>Document</h2>
+    <div class="two">
+     <div><label>Type</label><select data-s="D" data-k="type"><option>Facture</option><option>Devis</option></select></div>
+     <div><label>Date</label><input type="date" data-s="D" data-k="date"></div>
+    </div>
+    <label>Client</label><input data-s="D" data-k="client" placeholder="Nom ou société">
+    <label>Adresse du client</label><textarea rows="2" data-s="D" data-k="cadr"></textarea>
+    <div class="two">
+     <div><label>Paiement sous (jours)</label><input type="number" min="0" data-s="D" data-k="ech"></div>
+     <div><label>TVA</label><select data-s="D" data-k="tva"><option value="0">Non applicable (franchise)</option><option value="20">20 %</option><option value="10">10 %</option><option value="5.5">5,5 %</option></select></div>
+    </div>
+   </div>
+   <div class="card">
+    <h2>Prestations</h2>
+    <div id="lines"></div>
+    <button class="line sm" onclick="addLine()">+ Ajouter une ligne</button>
+   </div>
+   <div class="card">
+    <h2>Mes informations <span style="font-weight:400;color:var(--mut)">(gardées sur cet appareil)</span></h2>
+    <label>Nom ou société</label><input data-s="me" data-k="nom">
+    <label>SIRET</label><input data-s="me" data-k="siret" inputmode="numeric">
+    <label>Adresse</label><textarea rows="2" data-s="me" data-k="adr"></textarea>
+    <div class="two">
+     <div><label>E-mail</label><input data-s="me" data-k="email" type="email"></div>
+     <div><label>IBAN</label><input data-s="me" data-k="iban"></div>
+    </div>
+   </div>
+  </div>
+  <div style="position:sticky;top:12px">
+   <div id="prev"></div>
+   <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+    <button onclick="saveDoc(false)">Enregistrer</button>
+    <button class="line" onclick="saveDoc(true)">Enregistrer et imprimer / PDF</button>
+   </div>
+   <p id="msg" style="color:var(--mut);font-size:13px;margin:8px 0 0"></p>
+  </div>
+ </div>
+</section>
+
+<section id="s2" class="hide">
+ <div class="stats" id="stats"></div>
+ <div class="card hide" id="rel">
+  <h2>Message de relance</h2>
+  <textarea id="relt" rows="7"></textarea>
+  <div style="display:flex;gap:8px;margin-top:10px"><button onclick="copyRel()">Copier le message</button><button class="line" onclick="$('#rel').classList.add('hide')">Fermer</button></div>
+ </div>
+ <div class="card" id="list"></div>
+</section>
+</main>
+
+<script>
+const K="facilo-v1",$=s=>document.querySelector(s);
+const eur=n=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"}).format(n||0);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const iso=d=>{const x=new Date(d);return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")};
+const addDays=(s,n)=>{const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return iso(d)};
+const fr=s=>{const[a,b,c]=s.split("-");return c+"/"+b+"/"+a};
+let S={me:{nom:"",siret:"",adr:"",email:"",iban:""},docs:[],seq:{}};
+try{const x=JSON.parse(localStorage.getItem(K));if(x)S=Object.assign(S,x)}catch(e){}
+const persist=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const blank=()=>({id:null,num:"",type:"Facture",client:"",cadr:"",lines:[{d:"",q:1,p:0}],date:iso(Date.now()),ech:30,tva:"0",status:"brouillon"});
+let D=blank();
+const sum=d=>{const ht=d.lines.reduce((a,l)=>a+l.q*l.p,0),t=ht*parseFloat(d.tva)/100;return{ht,t,ttc:ht+t}};
+const due=d=>addDays(d.date,parseInt(d.ech)||0);
+
+function fill(){
+  document.querySelectorAll("[data-s]").forEach(i=>{const o=i.dataset.s==="me"?S.me:D;i.value=o[i.dataset.k]});
+  drawLines();preview();
+}
+function drawLines(){
+  const w=$("#lines");w.innerHTML="";
+  D.lines.forEach((l,i)=>{
+    const r=document.createElement("div");r.className="ln";
+    r.innerHTML='<input data-i="'+i+'" data-f="d" placeholder="Description" value="'+esc(l.d)+'"><input data-i="'+i+'" data-f="q" type="number" min="0" step="any" aria-label="Quantité" value="'+l.q+'"><input data-i="'+i+'" data-f="p" type="number" min="0" step="any" aria-label="Prix unitaire" value="'+l.p+'"><button aria-label="Supprimer la ligne" onclick="delLine('+i+')">✕</button>';
+    w.appendChild(r);
+  });
+}
+function addLine(){D.lines.push({d:"",q:1,p:0});drawLines();preview()}
+function delLine(i){if(D.lines.length>1)D.lines.splice(i,1);drawLines();preview()}
+document.addEventListener("input",e=>{
+  const t=e.target;
+  if(t.dataset.f){const l=D.lines[+t.dataset.i];l[t.dataset.f]=t.dataset.f==="d"?t.value:(parseFloat(t.value)||0)}
+  else if(t.dataset.s){(t.dataset.s==="me"?S.me:D)[t.dataset.k]=t.value;if(t.dataset.s==="me")persist()}
+  else return;
+  preview();
+});
+
+function preview(){
+  const m=S.me,s=sum(D),ech=due(D);
+  const rows=D.lines.map(l=>'<tr><td>'+esc(l.d||"…")+'</td><td class="r">'+l.q+'</td><td class="r">'+eur(l.p)+'</td><td class="r">'+eur(l.q*l.p)+'</td></tr>').join("");
+  const nat=D.type==="Facture";
+  $("#prev").innerHTML=
+   '<div class="dh"><div><b>'+esc(m.nom||"Votre nom")+'</b><br>'+esc(m.adr).replace(/\n/g,"<br>")+(m.siret?'<br>SIRET '+esc(m.siret):"")+(m.email?'<br>'+esc(m.email):"")+'</div>'+
+   '<div class="dt">'+D.type.toUpperCase()+'<small>N° '+esc(D.num||"attribué à l\'enregistrement")+'</small><small>Date : '+fr(D.date)+'</small>'+(nat?'<small>Échéance : '+fr(ech)+'</small>':'<small>Valable 30 jours</small>')+'</div></div>'+
+   '<div><b>Client</b><br>'+esc(D.client||"Nom du client")+'<br>'+esc(D.cadr).replace(/\n/g,"<br>")+'</div>'+
+   '<table><tr><th>Description</th><th class="r">Qté</th><th class="r">Prix unit.</th><th class="r">Total</th></tr>'+rows+'</table>'+
+   '<div class="tot"><div><span>Total HT</span><span>'+eur(s.ht)+'</span></div>'+(parseFloat(D.tva)?'<div><span>TVA '+D.tva+' %</span><span>'+eur(s.t)+'</span></div>':"")+'<div class="g"><span>'+(parseFloat(D.tva)?"Total TTC":"Total à payer")+'</span><span>'+eur(s.ttc)+'</span></div></div>'+
+   '<div class="mn">'+(parseFloat(D.tva)?"":"TVA non applicable, art. 293 B du CGI.<br>")+
+   (nat?'Paiement à '+(parseInt(D.ech)||0)+' jours'+(m.iban?' par virement : '+esc(m.iban):"")+'.<br>En cas de retard : pénalités égales à 3 fois le taux d\'intérêt légal et indemnité forfaitaire de recouvrement de 40 €.':'Bon pour accord (date et signature du client) :')+'</div>';
+}
+
+function saveDoc(print){
+  if(!D.client.trim()||sum(D).ht<=0){say("Ajoutez un client et au moins une prestation avec un prix.");return}
+  if(!D.id){
+    const p=D.type==="Facture"?"F":"D",y=D.date.slice(0,4),k=p+y;
+    S.seq[k]=(S.seq[k]||0)+1;
+    D.num=p+y+"-"+String(S.seq[k]).padStart(3,"0");D.id=Date.now();S.docs.unshift(D);
+  }
+  persist();preview();say(D.num+" enregistré dans « Mes documents ».");
+  if(print){try{window.print()}catch(e){say("Impression indisponible ici : ouvrez le lien dans votre navigateur.")}}
+}
+function say(t){$("#msg").textContent=t}
+function tab(n){
+  $("#s1").classList.toggle("hide",n!==1);$("#s2").classList.toggle("hide",n!==2);
+  $("#t1").classList.toggle("on",n===1);$("#t2").classList.toggle("on",n===2);
+  if(n===2)drawDocs();
+}
+
+function late(d){return d.type==="Facture"&&d.status==="envoyée"&&iso(Date.now())>due(d)}
+function drawDocs(){
+  const t=iso(Date.now()),mo=t.slice(0,7);
+  let wait=0,lat=0,paid=0;
+  S.docs.forEach(d=>{if(d.type!=="Facture")return;const v=sum(d).ttc;
+    if(d.status==="envoyée"){wait+=v;if(late(d))lat+=v}
+    if(d.status==="payée"&&d.date.slice(0,7)===mo)paid+=v});
+  $("#stats").innerHTML='<div><b>'+eur(wait)+'</b><span>À encaisser</span></div><div><b style="color:var(--warn)">'+eur(lat)+'</b><span>En retard</span></div><div><b style="color:var(--ok)">'+eur(paid)+'</b><span>Encaissé ce mois-ci</span></div>';
+  const L=$("#list");
+  if(!S.docs.length){L.innerHTML='<div class="empty">Aucun document pour l\'instant.<br>Créez votre première facture : ça prend 2 minutes.</div>';return}
+  L.innerHTML=S.docs.map((d,i)=>'<div class="item"><div><b>'+esc(d.num)+'</b> · '+esc(d.client)+'<br><span style="color:var(--mut);font-size:13px">'+fr(d.date)+' · '+eur(sum(d).ttc)+'</span>'+(late(d)?' <span class="late">en retard depuis le '+fr(due(d))+'</span>':"")+'</div>'+
+   '<div class="acts"><select aria-label="Statut" onchange="setSt('+i+',this.value)">'+["brouillon","envoyée","payée"].map(s=>'<option'+(s===d.status?" selected":"")+'>'+s+'</option>').join("")+'</select>'+
+   '<button class="line sm" onclick="openDoc('+i+')">Ouvrir</button>'+
+   (d.type==="Devis"?'<button class="line sm" onclick="toInvoice('+i+')">Facturer</button>':"")+
+   (d.type==="Facture"&&d.status==="envoyée"?'<button class="sm" onclick="relance('+i+')">Relancer</button>':"")+
+   '<button class="line sm" aria-label="Supprimer" onclick="del('+i+')">✕</button></div></div>').join("");
+}
+function setSt(i,v){S.docs[i].status=v;persist();drawDocs()}
+function del(i){if(confirm("Supprimer "+S.docs[i].num+" ?")){S.docs.splice(i,1);persist();drawDocs()}}
+function openDoc(i){D=JSON.parse(JSON.stringify(S.docs[i]));fill();tab(1);say("")}
+function toInvoice(i){D=JSON.parse(JSON.stringify(S.docs[i]));D.id=null;D.num="";D.type="Facture";D.status="brouillon";D.date=iso(Date.now());fill();tab(1);say("Devis converti en facture : vérifiez puis enregistrez.")}
+function relance(i){
+  const d=S.docs[i],days=Math.floor((new Date(iso(Date.now()))-new Date(due(d)))/864e5),nm=S.me.nom||"";
+  const first=days<=15;
+  $("#relt").value=(first?
+   "Bonjour,\n\nSauf erreur de ma part, la facture "+d.num+" du "+fr(d.date)+" d'un montant de "+eur(sum(d).ttc)+" n'a pas encore été réglée"+(days>0?" (échéance dépassée de "+days+" jours)":"")+".\n\nPourriez-vous me confirmer sa date de paiement ? Je vous la joins de nouveau si besoin.\n\nMerci d'avance et bonne journée,\n"+nm:
+   "Bonjour,\n\nMalgré mon précédent rappel, la facture "+d.num+" du "+fr(d.date)+" ("+eur(sum(d).ttc)+") reste impayée, avec "+days+" jours de retard.\n\nSans règlement sous 8 jours, des pénalités de retard et l'indemnité forfaitaire de recouvrement de 40 € prévues à la facture seront exigibles.\n\nMerci de procéder au virement dans les meilleurs délais.\n\nCordialement,\n"+nm);
+  $("#rel").classList.remove("hide");$("#rel").scrollIntoView({behavior:"smooth"});
+}
+function copyRel(){
+  const t=$("#relt");t.select();
+  try{navigator.clipboard.writeText(t.value)}catch(e){try{document.execCommand("copy")}catch(_){}}
+}
+fill();
+</script>
+</body>
+</html>
