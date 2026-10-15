@@ -1,6 +1,8 @@
 # Facilo
 
-https://img.shields.io/badge/@discord/discord.gg/5gfpZ2452q
+
+[![Discord](https://img.shields.io/badge/Discord-Rejoindre-5865F2?logo=discord&logoColor=white)](https://discord.gg/5gfpZ2452q)
+
 
 Devis, factures et relances en 2 minutes, pensés pour les micro-entrepreneurs et indépendants français.
 
